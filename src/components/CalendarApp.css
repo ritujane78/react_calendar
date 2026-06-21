@@ -1,7 +1,7 @@
 .calendar-app{
-    width: 70%;
+    width: 60%;
     min-width: 90vmin;
-    aspect-ratio: 3 / 1;
+    aspect-ratio: 3 / 2;
     background-color: #1e242d;
     padding: 3rem;
     border-radius: 3rem;
@@ -99,14 +99,14 @@
 }
 .events{
     width: 60%;
-    height: 200%;
+    height: 100%;
     padding: 3rem 0;
 }
 .event-popup{
     position: absolute;
     top: 38%;
-    /* left: 3rem; */
-    right: 3rem;
+    left: 3rem;
+    /* right: 3rem; */
     background-color: #161b22;
     width: clamp(25rem, 21cqi, 40rem);
     aspect-ratio: 10 / 9;

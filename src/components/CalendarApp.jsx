@@ -19,6 +19,14 @@ const CalendarApp = () => {
   const currentDate = new Date();
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
+  const [selectedDate, setSelectedDate] = useState(currentDate);
+  const [showEventPopup, setShowEventPopup] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [eventTime, setEventTime] = useState({
+    hours: '00',
+    minutes: '00',
+  });
+  const [eventText, setEventText] = useState('');
 
   const daysInMonth = new Date(currentYear, currentMonth + 1,  0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
@@ -30,6 +38,38 @@ const CalendarApp = () => {
   const getNextMonth = () => {
     setCurrentMonth(prevMonth => prevMonth === 11? 0: prevMonth + 1);
     setCurrentYear(prevYear => currentMonth === 11? prevYear + 1: prevYear );
+  }
+  const handleDateClick = (day) => {
+    const clickedDate = new Date(currentYear, currentMonth, day);
+    const today = new Date();
+    if( clickedDate >= today || isSameDay(clickedDate, today)){
+        setSelectedDate(clickedDate);
+        setShowEventPopup(true);
+        setEventTime({hours : '00', minutes : '00'});
+        setEventText("");
+    } else {
+        setShowEventPopup(false);
+    }
+  }
+  const isSameDay = (date1, date2) => {
+    return (
+        date1.getFullYear() == date2.getFullYear() &&
+        date1.getMonth() == date2.getMonth() &&
+        date1.getDate() == date2.getDate()
+    )
+  }
+  const handleEventSubmit = () => {
+    if (!eventText.trim()) return;
+
+    const newEvent = {
+        date: selectedDate,
+        time: `${eventTime.hours.padStart(2, '0')}:${eventTime.minutes.padStart(2, '0')}`,
+        text: eventText
+    };
+    setEvents([...events, newEvent]);
+    setEventTime({hours: '00', minutes: '00'});
+    setEventText("");
+    setShowEventPopup(false);
   }
     return (
     <div className='calendar-app'>
@@ -53,37 +93,79 @@ const CalendarApp = () => {
                 {[...Array(daysInMonth).keys()].map((day) => ( 
                     <span key={day + 1} className={
                         day + 1 === currentDate.getDate() && 
-                        currentMonth === currentDate.getMonth() && 
-                        currentYear === currentDate.getFullYear() ? 
-                        'current-day': ''}>
+                            currentMonth === currentDate.getMonth() && 
+                            currentYear === currentDate.getFullYear() ? 
+                        'current-day': ''}
+                        onClick={() => handleDateClick(day + 1)}
+                    >
                             {day + 1}</span>
                 ))}
             </div>
         </div>
         <div className="events">
-            <div className="event-popup">
+            {showEventPopup && (
+                <div className="event-popup">
                 <div className="time-input">
-                    <div className="event-popup-time">Time</div>
-                    <input type="number" min={0} max={24} className='hour' />
-                    <input type="number" min={0} max={60} className='minutes' />
+                    <div className="event-popup-time">
+                        Time
+                    </div>
+                    <input
+                        type="number"
+                        min={0}
+                        max={23}
+                        className="hour"
+                        name="hours"
+                        value={eventTime.hours}
+                        onChange={(e) =>
+                        setEventTime({
+                            ...eventTime,
+                            hours: e.target.value,
+                        })
+                        }
+                    />
+
+                    <input
+                        type="number"
+                        min={0}
+                        max={59}
+                        className="minutes"
+                        name="minutes"
+                        value={eventTime.minutes}
+                        onChange={(e) =>
+                        setEventTime({
+                            ...eventTime,
+                            minutes: e.target.value,
+                        })
+                        }
+                    />
                 </div>
-                <textarea placeholder='Enter Event Text (Maximum 60 Characters'></textarea>
-                <button className='event-popup-btn'>Add Event</button>
+                <textarea placeholder='Enter Event Text (Maximum 60 Characters' 
+                value={eventText} 
+                onChange={(e) => {
+                    if(e.target.value.length <= 60)setEventText(e.target.value)}
+                    }
+                ></textarea>
+                <button className='event-popup-btn' onClick={handleEventSubmit}>Add Event</button>
                 <button className="event-popup-close">
-                    <i className="bx bx-x"></i>
+                    <i className="bx bx-x" onClick={() => setShowEventPopup(false)}></i>
                 </button>
             </div>
-            <div className="event">
-                <div className="event-date-wrapper">
-                    <div className="event-date">June 19, 2026</div>
-                    <div className="event-time">10:00</div>
+            )}
+            {events.map((event, index) => (
+                <div className="event" key={index}>
+                    <div className="event-date-wrapper">
+                        <div className="event-date">
+                            {`${monthsOfYear[event.date.getMonth()]} ${event.date.getDate()}, ${event.date.getFullYear()}`}
+                        </div>
+                        <div className="event-time">{event.time}</div>
+                    </div>
+                    <div className="event-text">{event.text}</div>
+                    <div className="event-buttons">
+                        <i className="bx bxs-edit-alt"></i>
+                        <i className="bx bxs-message-alt-x"></i>
+                    </div>
                 </div>
-                <div className="event-text">Meeting with John</div>
-                <div className="event-buttons">
-                    <i className="bx bxs-edit-alt"></i>
-                    <i className="bc bxs-message-alt-x"></i>
-                </div>
-            </div>
+            ))}
         </div>
     </div>
   )
