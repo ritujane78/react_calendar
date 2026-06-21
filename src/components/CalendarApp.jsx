@@ -100,6 +100,10 @@ const CalendarApp = () => {
     const updatedEvents = events.filter(event => event.id !== eventId);
     setEvents(updatedEvents);
   }
+  const handleTimeChange = (e) => {
+    const {name, value} = e.target;
+    setEventTime((prevTime) => ({...prevTime, [name]: value.padStart(2, '0')}));
+  }
     return (
     <div className='calendar-app'>
         <div className="calendar">
@@ -145,12 +149,7 @@ const CalendarApp = () => {
                         className="hour"
                         name="hours"
                         value={eventTime.hours}
-                        onChange={(e) =>
-                        setEventTime({
-                            ...eventTime,
-                            hours: e.target.value,
-                        })
-                        }
+                        onChange={handleTimeChange}
                     />
 
                     <input
@@ -160,12 +159,7 @@ const CalendarApp = () => {
                         className="minutes"
                         name="minutes"
                         value={eventTime.minutes}
-                        onChange={(e) =>
-                        setEventTime({
-                            ...eventTime,
-                            minutes: e.target.value,
-                        })
-                        }
+                        onChange={handleTimeChange}
                     />
                 </div>
                 <textarea placeholder='Enter Event Text (Maximum 60 Characters' 
